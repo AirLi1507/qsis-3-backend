@@ -1,6 +1,9 @@
 import mysql, { RowDataPacket } from "mysql2"
 import argon2 from "argon2"
 import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 export interface userInfoTypes {
   uid?: string
@@ -19,11 +22,11 @@ interface clientInfo {
 }
 
 const db = mysql.createPool({
-  host: process.env.MYSQL_HOST?.toString(),
+  host: (process.env.MYSQL_HOST as string),
   port: Number(process.env.MYSQL_PORT),
-  database: process.env.MYSQL_DB?.toString(),
-  user: process.env.MYSQL_USER?.toString(),
-  password: process.env.MYSQL_PASSWORD?.toString()
+  database: (process.env.MYSQL_DB as string),
+  user: (process.env.MYSQL_USER as string),
+  password: (process.env.MYSQL_PASSWORD as string)
 }).promise()
 
 export async function selectUsers() {
@@ -83,7 +86,7 @@ export async function newSession(uid: string, client: clientInfo): Promise<strin
       user_agent: client.user_agent
     },
     process.env.JWT_SECRET_KEY!.toString(),
-    { expiresIn: 30 }
+    { expiresIn: Number(process.env.SESSION_EXPIRES_TIME) }
   )
 
   return token
