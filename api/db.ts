@@ -19,11 +19,11 @@ interface clientInfo {
 }
 
 const db = mysql.createPool({
-  host: "localhost",
-  port: 3306,
-  database: "qsis",
-  user: "qsis",
-  password: "idkpassword"
+  host: process.env.MYSQL_HOST?.toString(),
+  port: Number(process.env.MYSQL_PORT),
+  database: process.env.MYSQL_DB?.toString(),
+  user: process.env.MYSQL_USER?.toString(),
+  password: process.env.MYSQL_PASSWORD?.toString()
 }).promise()
 
 export async function selectUsers() {
