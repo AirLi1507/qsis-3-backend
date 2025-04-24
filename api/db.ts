@@ -16,7 +16,7 @@ export interface userInfoTypes {
 
 interface userDataRow extends RowDataPacket, userInfoTypes { }
 
-interface clientInfo {
+interface clientInfo extends userInfoTypes {
   ip: string
   user_agent: string
 }
@@ -35,7 +35,6 @@ export async function selectUsers() {
 }
 
 export async function addUser(data: userInfoTypes) {
-
   const [uidExistence] = await db.query<userDataRow[]>("select uid from user where uid = ? limit 1;", [data.uid])
 
   if (uidExistence[0]) {
@@ -46,7 +45,16 @@ export async function addUser(data: userInfoTypes) {
     console.dir(data)
     const argon_hash = await argon2.hash(data.password!, { memoryCost: 65535 })
     try {
-      await db.query(`insert into user (uid , password_hash , chi_name , eng_name , email , role) values ("${data.uid}" , "${argon_hash}" , "${data.chi_name}" , "${data.eng_name}" , "${data.email}", ${data.role});`)
+      await db.query(
+        "insert into user (uid , password_hash , chi_name , eng_name , email , role) values (? , ? , ? , ? , ? , ?);",
+        [
+          data.uid,
+          argon_hash,
+          data.chi_name,
+          data.eng_name,
+          data.email,
+          data.role
+        ])
       console.log("User added.")
       return "OK"
     } catch (error) {
@@ -56,14 +64,15 @@ export async function addUser(data: userInfoTypes) {
   }
 }
 
-export async function authUser(uid: string, password: string, client: clientInfo): Promise<boolean | string> {
+export async function authUser(uid: string, password: string, client: clientInfo): Promise<boolean | object> {
   interface hashObjectType extends RowDataPacket { password_hash?: string }
+
   try {
     const [row] = await db.query<hashObjectType[]>("select password_hash from user where uid = ? limit 1;", [uid])
 
     if (row[0].password_hash != undefined) {
       if (await argon2.verify(row[0].password_hash, password)) {
-        return await newSession(uid, client)
+        return await getRefreshToken(uid, client)
       } else {
         return false
       }
@@ -77,8 +86,10 @@ export async function authUser(uid: string, password: string, client: clientInfo
   }
 }
 
-export async function newSession(uid: string, client: clientInfo): Promise<string | boolean> {
-  console.log("Now is " + (Math.round(new Date().getTime() / 1000)))
+export async function getRefreshToken(uid: string, client: clientInfo): Promise<object | boolean> {
+
+  console.log("Now is " + new Date().toUTCString())
+
   const token = jwt.sign(
     {
       uid: uid,
@@ -86,71 +97,46 @@ export async function newSession(uid: string, client: clientInfo): Promise<strin
       user_agent: client.user_agent
     },
     process.env.JWT_SECRET_KEY!.toString(),
-    { expiresIn: Number(process.env.SESSION_EXPIRES_TIME) }
+    {
+      expiresIn: Number(process.env.REFRESH_TOKEN_EXPIRES_TIME)
+    }
   )
 
-  return token
+  const expireDateInUTC = new Date(new Date().getTime() + 1000 * Number(process.env.REFRESH_TOKEN_EXPIRES_TIME)).toUTCString()
 
-  // OLD SESSION SYSTEM
-  /*
-  const randomNo = Math.round(Math.random() * 10000000000)
-  const session_hash = await argon2.hash(randomNo.toString(), { memoryCost: 65535 })
-  const currentTime = Math.round(new Date().getTime() / 1000)
-  console.log(`Now is ${currentTime}`)
-  const expireTime = (currentTime + 30)
-  console.log(`Expires at ${expireTime}`)
-  try {
-    await db.query("insert into session (uid, session_hash, expires_at, user_agent, ip_addr) values (?, ?, ?, ?, ?);", [uid, session_hash, expireTime, client.user_agent, client.ip])
-    return randomNo
-  } catch (error) {
-    console.error(`Session hash generation failed. \nError: ${error}`)
-    return false
-  }
-  */
+  console.log("Expires at " + expireDateInUTC)
+
+  return { refresh_token: token, expires_at: expireDateInUTC }
 }
 
-export async function verifySession(token: string): Promise<boolean> {
 
+export async function verifyToken(token: string): Promise<boolean> {
   try {
     const sessionValid = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString())
-
     console.log(sessionValid)
-
     return true
   } catch (error) {
     console.error(`Session verification failed. \nError: ${error}`)
     return false
   }
+}
 
-  // OLD SESSION SYSTEM
-  /*
-  console.log(`SESSION NUMBER: ${session_no}`)
-  interface sessionObjectType extends RowDataPacket, clientInfo {
-    session_hash: string
-    expires_at: number
-  }
-  try {
-    const [row] = await db.query<sessionObjectType[]>("select session_hash, expires_at from session where uid = ? and user_agent = ? and ip_addr = ? limit 1;", [
-      uid,
-      client.user_agent,
-      client.ip
-    ])
-    const sessionCorrect = await argon2.verify(row[0].session_hash, session_no.toString())
-    if (sessionCorrect) {
-      console.log(`Verifying, now is ${Math.round(new Date().getTime() / 1000)}`)
-      if (row[0].expires_at < Math.round(new Date().getTime() / 1000)) {
-        console.log("Session expired, deleting...")
-        await db.query("delete from session where session_hash = ?;", [row[0].session_hash])
-        return false
-      } else {
-        return true
+export async function authRefresh(token: string): Promise<string | false> {
+  const verifyJWT = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString())
+  if (verifyJWT) {
+    const decodedRefreshToken = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString()) as clientInfo
+    const newAccessToken = jwt.sign(
+      {
+        uid: decodedRefreshToken.uid,
+        ip: decodedRefreshToken.user_agent
+      },
+      process.env.JWT_SECRET_KEY!.toString(),
+      {
+        expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRES_TIME)
       }
-    } else {
-      return false
-    }
-  } catch (error) {
-    console.error(`Could not verify session. \nError: ${error}`)
+    )
+    return newAccessToken
+  } else {
     return false
   }
-  */
 }
