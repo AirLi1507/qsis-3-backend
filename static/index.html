@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/index.css" type="text/css">
 </head>
 
-<body class="w-svw h-svh bg-black flex flex-col gap-4 justify-center items-center">
+<body>
   <style>
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -22,51 +22,31 @@
     }
   </style>
   <!--BELOW IS USER ADDITION FORM--!>
-  <form action="https://test-2.hypernix.dev/auth/new" method="post"
-    class="border-2 border-zinc-600 hover:border-zinc-100 focus-within:border-zinc-100 rounded-3xl flex flex-col gap-4 p-5 duration-125"
-    id="add">
-    <input required type="text" name="uid" placeholder="uid"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="text" name="password" placeholder="password"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="text" name="chi_name" placeholder="chi_name"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="text" name="eng_name" placeholder="eng_name"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="text" name="email" placeholder="email"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="number" name="role" placeholder="role"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input type="submit" value="Add User"
-      class="text-zinc-50 hover:text-stone-950 text-lg hover:bg-zinc-50 rounded-xl border-2 border-zinc-50/50 p-3 duration-300 outline-none cursor-pointer" />
+  <form action="https://test-2.hypernix.dev/auth/new" method="post" class="flex form" id="add">
+    <input required type="text" name="uid" placeholder="uid" class="textbox" />
+    <input required type="text" name="password" placeholder="password" class="textbox" />
+    <input required type="text" name="chi_name" placeholder="chi_name" class="textbox" />
+    <input required type="text" name="eng_name" placeholder="eng_name" class="textbox" />
+    <input required type="text" name="email" placeholder="email" class="textbox" />
+    <input type="number" name="form" placeholder="form" class="textbox" />
+    <input type="text" name="class" placeholder="class" class="textbox" />
+    <input type="number" name="classNo" placeholder="classNo" class="textbox" />
+    <input required type="number" name="role" placeholder="role" class="textbox" />
+    <input type="submit" value="Add User" class="btn" />
   </form>
   <!--BELOW IS LOGIN FORM--!>
-  <form action="https://test-2.hypernix.dev/auth/login" method="post"
-    class="hidden border-2 border-zinc-600 hover:border-zinc-100 focus-within:border-zinc-100 rounded-3xl flex flex-col gap-4 p-5 duration-125"
-    id="login">
-    <input required type="text" name="uid" placeholder="uid"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input required type="text" name="password" placeholder="password"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input type="submit" value="Login"
-      class="text-zinc-50 hover:text-stone-950 text-lg hover:bg-zinc-50 rounded-xl border-2 border-zinc-50/50 p-3 duration-300 outline-none cursor-pointer" />
+  <form action="https://test-2.hypernix.dev/auth/login" method="post" class="hidden form" id="login">
+    <input required type="text" name="uid" placeholder="uid" class="textbox">
+    <input required type="text" name="password" placeholder="password" class="textbox">
+    <input type="submit" value="Login" class="btn" />
   </form>
   <!--BELOW IS SESSION VERIFY FORM--!>
-  <form action="https://test-2.hypernix.dev/auth/refresh" method="post"
-    class="hidden border-2 border-zinc-600 hover:border-zinc-100 focus-within:border-zinc-100 rounded-3xl flex flex-col gap-4 p-5 duration-125"
-    id="verify">
-      <!--
-    <input required type="text" name="uid" placeholder="uid"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-        --!>
-    <input required type="text" name="token" placeholder="token"
-      class="text-zinc-50 text-xl rounded-xl border-2 border-zinc-500 hover:border-zinc-50 focus-within:border-zinc-50 p-3 duration-100 outline-none">
-    <input type="submit" value="Verify"
-      class="text-zinc-50 hover:text-stone-950 text-lg hover:bg-zinc-50 rounded-xl border-2 border-zinc-50/50 p-3 duration-300 outline-none cursor-pointer" />
+  <form action="https://test-2.hypernix.dev/auth/refresh" method="post" class="hidden form" id="verify">
+    <input required type="text" name="token" placeholder="token" class="textbox">
+    <input type="submit" value="Verify" class="btn" />
   </form>
 
-
-  <button class="text-zinc-700 hover:text-zinc-50/85 font-bold duration-100 cursor-pointer" id="btn"
+  <button class="link" id="change"
     onclick="switchForm(1)">Login</button>
   <script src="/script.js"></script>
 </body>

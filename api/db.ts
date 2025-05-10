@@ -2,6 +2,7 @@ import mysql, { RowDataPacket } from "mysql2"
 import argon2 from "argon2"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import { env } from "node:process"
 
 dotenv.config()
 
@@ -12,6 +13,9 @@ export interface userInfoTypes {
   eng_name?: string
   email?: string
   role?: number
+  class?: string
+  classNo?: number
+  form?: number
 }
 
 interface userDataRow extends RowDataPacket, userInfoTypes { }
@@ -46,14 +50,17 @@ export async function addUser(data: userInfoTypes) {
     const argon_hash = await argon2.hash(data.password!, { memoryCost: 65535 })
     try {
       await db.query(
-        "insert into user (uid , password_hash , chi_name , eng_name , email , role) values (? , ? , ? , ? , ? , ?);",
+        "insert into user (uid , password_hash , chi_name , eng_name , email , role , class , classNo , form) values (? , ? , ? , ? , ? , ? , ? , ? , ?);",
         [
           data.uid,
           argon_hash,
           data.chi_name,
           data.eng_name,
           data.email,
-          data.role
+          data.role,
+          data.class,
+          data.classNo,
+          data.form
         ])
       console.log("User added.")
       return "OK"
@@ -98,45 +105,43 @@ export async function getRefreshToken(uid: string, client: clientInfo): Promise<
     },
     process.env.JWT_SECRET_KEY!.toString(),
     {
-      expiresIn: Number(process.env.REFRESH_TOKEN_EXPIRES_TIME)
+      expiresIn: eval(process.env.REFRESH_TOKEN_EXPIRES_TIME!)
     }
   )
 
-  const expireDateInUTC = new Date(new Date().getTime() + 1000 * Number(process.env.REFRESH_TOKEN_EXPIRES_TIME)).toUTCString()
+  const envExpires = eval(process.env.REFRESH_TOKEN_EXPIRES_TIME!)
+
+  const expireDateInUTC = new Date(new Date().getTime() + envExpires).toUTCString()
 
   console.log("Expires at " + expireDateInUTC)
+
+  console.log(envExpires)
+
 
   return { refresh_token: token, expires_at: expireDateInUTC }
 }
 
-
-export async function verifyToken(token: string): Promise<boolean> {
-  try {
-    const sessionValid = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString())
-    console.log(sessionValid)
-    return true
-  } catch (error) {
-    console.error(`Session verification failed. \nError: ${error}`)
-    return false
-  }
-}
-
 export async function authRefresh(token: string): Promise<string | false> {
-  const verifyJWT = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString())
-  if (verifyJWT) {
-    const decodedRefreshToken = jwt.verify(token, process.env.JWT_SECRET_KEY!.toString()) as clientInfo
-    const newAccessToken = jwt.sign(
-      {
-        uid: decodedRefreshToken.uid,
-        ip: decodedRefreshToken.user_agent
-      },
-      process.env.JWT_SECRET_KEY!.toString(),
-      {
-        expiresIn: Number(process.env.ACCESS_TOKEN_EXPIRES_TIME)
-      }
-    )
-    return newAccessToken
-  } else {
+  try {
+    const verifyJWT = jwt.verify(token, process.env.JWT_SECRET_KEY!)
+    if (verifyJWT) {
+      const decodedRefreshToken = jwt.verify(token, process.env.JWT_SECRET_KEY!) as clientInfo
+      const newAccessToken = jwt.sign(
+        {
+          uid: decodedRefreshToken.uid,
+          ip: decodedRefreshToken.user_agent
+        },
+        process.env.JWT_SECRET_KEY!,
+        {
+          expiresIn: eval(process.env.ACCESS_TOKEN_EXPIRES_TIME!)
+        }
+      )
+      return newAccessToken
+    } else {
+      return false
+    }
+  } catch (error) {
+    console.error(`Could not verify token.\nError: ${error}`)
     return false
   }
 }
