@@ -11,7 +11,7 @@ import { access, login, refresh } from "./api/auth.ts"
 import { ec, grade, homework, pfp, profile } from "./api/resource.ts";
 import { accessTokenInterface } from "./api/token.ts";
 import argon2 from "argon2";
-import { aiGradeSummarize } from "./api/deepseek.ts";
+import { aiGradeSummarize } from "./api/ai.ts";
 
 dotenv.configDotenv()
 
