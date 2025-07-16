@@ -13,6 +13,12 @@ const client = new OpenAI({
 })
 
 export async function aiGradeSummarize(grade: grade[]) {
+  console.log(
+    `
+      ${process.env.AI_BASEURL}
+      ${process.env.AI_MODEL}
+    `
+  )
   const response = await client.chat.completions.create({
     messages: [
       {
@@ -24,7 +30,7 @@ export async function aiGradeSummarize(grade: grade[]) {
         content: JSON.stringify(grade)
       }
     ],
-    model: "deepseek-chat"
+    model: process.env.AI_MODEL || "gpt-4.1-nano",
   })
   return response.choices[0].message.content
 }
