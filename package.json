@@ -1,5 +1,5 @@
 {
-  "name": "qsis-3-backend",
+  "name": "qsis-3-newbackend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,26 +9,25 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.7.0",
-  "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.14.1"
-  },
+  "packageManager": "pnpm@10.13.1",
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.4",
-    "@types/cookie-parser": "^1.4.8",
-    "@types/jsonwebtoken": "^9.0.9",
-    "argon2": "^0.41.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "argon2": "^0.43.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
+    "dotenv": "^17.2.0",
+    "eslint": "^9.31.0",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mathjs": "^14.5.0",
-    "mysql2": "^3.14.0",
-    "openai": "^5.9.0",
-    "tailwindcss": "^4.1.4"
+    "mathjs": "^14.5.3",
+    "mysql2": "^3.14.2",
+    "openai": "^5.10.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.37.0",
+    "zod": "^4.0.5"
   }
 }
