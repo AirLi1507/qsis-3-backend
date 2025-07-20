@@ -2,7 +2,7 @@ import express from "express"
 import * as z from "zod"
 import { db } from "../../config/db.ts"
 import jwt from "jsonwebtoken"
-import { Token } from "../../config/zod.ts"
+import { Token } from "../../config/schema.ts"
 import fs from "fs"
 import path from "path"
 

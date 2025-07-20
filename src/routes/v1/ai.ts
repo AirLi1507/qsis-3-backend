@@ -2,7 +2,7 @@ import express from "express"
 import OpenAI from "openai"
 import { db } from "../../config/db.ts"
 import jwt from "jsonwebtoken"
-import { Token } from "../../config/zod.ts"
+import { Token } from "../../config/schema.ts"
 
 const router = express.Router()
 
