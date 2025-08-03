@@ -17,9 +17,7 @@ export async function login(req: Request, res: Response) {
   const { uid, password } = Credentials.parse(await req.body)
 
   if (!uid || !password) {
-    res.status(401).json({
-      error: "Credentials invalid."
-    })
+    res.status(401).json(false)
     return
   }
 
@@ -30,7 +28,11 @@ export async function login(req: Request, res: Response) {
       })
     )
     let [row] = await db.query("select password_hash from user where uid = ?;", [uid])
-    const hash = HashSchema.parse(row)[0].password_hash
+    const hash = HashSchema.parse(row)[0] ? HashSchema.parse(row)[0].password_hash : false
+    if (!hash) {
+      res.status(401).json(false)
+      return
+    }
     if (await argon2id.verify(hash, password)) {
       const RoleSchema = z.array(
         z.object({
@@ -47,7 +49,10 @@ export async function login(req: Request, res: Response) {
         },
         process.env.JWT_SECRET_KEY
         ||
-        "fallback_secret"
+        "fallback_secret",
+        {
+          algorithm: "HS512"
+        }
       )
 
       res.cookie(
@@ -69,7 +74,10 @@ export async function login(req: Request, res: Response) {
         },
         process.env.JWT_SECRET_KEY
         ||
-        "fallback_secret"
+        "fallback_secret",
+        {
+          algorithm: "HS512"
+        }
       )
 
       res.cookie(
@@ -125,7 +133,10 @@ export function refresh(req: Request, res: Response) {
       },
       process.env.JWT_SECRET_KEY
       ||
-      "fallback_secret"
+      "fallback_secret",
+      {
+        algorithm: "HS512"
+      }
     )
 
     res.cookie(
@@ -142,6 +153,7 @@ export function refresh(req: Request, res: Response) {
 
     res.json(true)
   } catch (err) {
+    logger.error(`Could not verify JWT. ${err}`)
     res.status(401).json({
       error: "Could not verify JWT."
     })
